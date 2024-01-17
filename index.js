@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -31,10 +31,10 @@ async function run() {
     // =================All Collection================================================
     const userCollection = client.db("PlantDB").collection("users");
     const AllPlantsCollection = client.db("PlantDB").collection("AllPlants");
+    const cartCollection = client.db("PlantDB").collection("carts");
     // =================================================================
 
-    // ---------------------All user ---------------------------------------
-
+    // ----------------------User Related ApI------------------------------------------
     app.post("/users", async (req, res) => {
       const user = req.body;
       const query = { email: user.email };
@@ -50,9 +50,50 @@ async function run() {
       const result = await userCollection.find().toArray();
       res.send(result);
     });
+
+    app.get("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      // if (email !== req.decoded.email) {
+      //   return res.status(403).send({ message: "unauthorized access" });
+      // }
+      const query = { email: email };
+      const user = await userCollection.findOne(query);
+      let admin = false;
+
+      if (user) {
+        admin = user?.role == "admin";
+      }
+      res.send({ admin });
+    });
     // =======================Plants Related Api==========================================
     app.get("/AllPlants", async (req, res) => {
       const result = await AllPlantsCollection.find().toArray();
+      res.send(result);
+    });
+    app.get("/product/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await AllPlantsCollection.findOne(query);
+      res.send(result);
+    });
+    // =================================================================
+
+    // =======================Cart Collection==========================================
+    app.post("/carts", async (req, res) => {
+      const cartItem = req.body;
+      const result = await cartCollection.insertOne(cartItem);
+      res.send(result);
+    });
+    app.get("/carts", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await cartCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.delete("/carts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await cartCollection.deleteOne(query);
       res.send(result);
     });
     // =================================================================
