@@ -76,6 +76,32 @@ async function run() {
       const result = await AllPlantsCollection.findOne(query);
       res.send(result);
     });
+
+    app.patch("/updateProduct/:id", async (req, res) => {
+      const item = req.body;
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          name: item.name,
+          previousPrice: item.previousPrice,
+          newPrice: item.newPrice,
+          plantType: item.plantType,
+          material: item.material,
+          color: item.color,
+          category: item.category,
+          stock: item.stock,
+          rating: item.rating,
+          description: item.description,
+          img1: item.img1,
+          img2: item.img2,
+          img3: item.img3,
+          img4: item.img4,
+        },
+      };
+      const result = await AllPlantsCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
     // =================================================================
 
     // =======================Cart Collection==========================================
