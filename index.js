@@ -102,6 +102,12 @@ async function run() {
       const result = await AllPlantsCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
+    app.delete("/deleteProduct/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await AllPlantsCollection.deleteOne(query);
+      res.send(result);
+    });
     // =================================================================
 
     // =======================Cart Collection==========================================
