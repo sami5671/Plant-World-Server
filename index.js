@@ -93,6 +93,11 @@ async function run() {
       const result = await AllPlantsCollection.find().toArray();
       res.send(result);
     });
+    app.post("/addProduct", async (req, res) => {
+      const treeItem = req.body;
+      const result = await AllPlantsCollection.insertOne(treeItem);
+      res.send(result);
+    });
     app.get("/product/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
