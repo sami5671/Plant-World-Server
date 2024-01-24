@@ -148,6 +148,17 @@ async function run() {
       const result = await AllPlantsCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
+    app.patch("/product/removeTrending/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          trending: "false",
+        },
+      };
+      const result = await AllPlantsCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
     // =================================================================
 
     // =======================Cart Collection==========================================
