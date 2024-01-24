@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+var jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
@@ -34,6 +35,30 @@ async function run() {
     const cartCollection = client.db("PlantDB").collection("carts");
     // =================================================================
 
+    // ---------------------------JWT related API-------------------------------------
+    app.post("/jwt", async (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
+      res.send({ token });
+    });
+    // MIDDLEWARE
+    const verifyToken = (req, res, next) => {
+      console.log("inside the verifyToken", req.headers.authorization);
+      if (!req.headers.authorization) {
+        return res.status(401).send({ message: "Forbidden Access" });
+      }
+      const token = req.headers.authorization.split(" ")[1];
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, decoded) => {
+        if (error) {
+          return res.status(401).send({ message: "Forbidden Access" });
+        }
+        req.decoded = decoded;
+        next();
+      });
+    };
+    //  ----------------------------------------------------------------
     // ----------------------User Related ApI------------------------------------------
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -46,7 +71,8 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/users", async (req, res) => {
+    app.get("/users", verifyToken, async (req, res) => {
+      // console.log(req.headers);
       const result = await userCollection.find().toArray();
       res.send(result);
     });
@@ -159,6 +185,13 @@ async function run() {
       const result = await AllPlantsCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
+    app.delete("/deleteUser/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await userCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // =================================================================
 
     // =======================Cart Collection==========================================
