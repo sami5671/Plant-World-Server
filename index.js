@@ -4,6 +4,7 @@ const cors = require("cors");
 var jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -23,7 +24,12 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+// ===================SSL Commerce==============================================
+const store_id = process.env.STORE_ID;
+const store_passwd = process.env.STORE_PASSWORD;
+const is_live = false; //true for live, false for sandbox
 
+// =================================================================
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -33,6 +39,7 @@ async function run() {
     const userCollection = client.db("PlantDB").collection("users");
     const AllPlantsCollection = client.db("PlantDB").collection("AllPlants");
     const cartCollection = client.db("PlantDB").collection("carts");
+    const paymentCollection = client.db("PlantDB").collection("payment");
     // =================================================================
 
     // ---------------------------JWT related API-------------------------------------
@@ -225,8 +232,47 @@ async function run() {
       const result = await cartCollection.deleteOne(query);
       res.send(result);
     });
+    // ===========================Order Related api======================================
+
     // =================================================================
-    // ------------------------------------------------------------
+
+    // =============================Payment api====================================
+    app.post("/create-payment-intent", async (req, res) => {
+      const { price } = req.body;
+      const amount = parseInt(price * 100);
+
+      // Create a PaymentIntent with the order amount and currency
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+
+    app.post("/payments", async (req, res) => {
+      const payment = req.body;
+      const paymentResult = await paymentCollection.insertOne(payment);
+
+      // carefully delete each item
+
+      const query = {
+        _id: {
+          $in: payment.cartIds.map((id) => new ObjectId(id)),
+        },
+      };
+      const deleteResult = await cartCollection.deleteMany(query);
+
+      res.send({ paymentResult, deleteResult });
+    });
+
+    app.get("/payments", async (req, res) => {
+      const result = await paymentCollection.find().toArray();
+      res.send(result);
+    });
+    // -----------------------------------------------------------------
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
