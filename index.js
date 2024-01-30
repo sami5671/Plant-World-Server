@@ -134,6 +134,12 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
+    app.delete("/deleteUser/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await userCollection.deleteOne(query);
+      res.send(result);
+    });
     // =======================Plants Related Api==========================================
     app.get("/AllPlants", async (req, res) => {
       const result = await AllPlantsCollection.find().toArray();
@@ -205,12 +211,6 @@ async function run() {
       const result = await AllPlantsCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
-    app.delete("/deleteUser/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await userCollection.deleteOne(query);
-      res.send(result);
-    });
 
     // =================================================================
 
@@ -279,6 +279,12 @@ async function run() {
       res.send(result);
     });
 
+    app.delete("/deleteOrder/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await paymentCollection.deleteOne(query);
+      res.send(result);
+    });
     // -----------------------------------------------------------------
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
