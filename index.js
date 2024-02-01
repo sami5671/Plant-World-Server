@@ -233,7 +233,57 @@ async function run() {
       res.send(result);
     });
     // ===========================Order Related api======================================
+    app.patch("/payments/orderProcessing/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          orderStatus: "processing",
+        },
+      };
+      const result = await paymentCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+    app.patch("/payments/orderPacking/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          orderStatus: "packing",
+        },
+      };
+      const result = await paymentCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+    app.patch("/payments/orderShipping/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          orderStatus: "shipping",
+        },
+      };
+      const result = await paymentCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+    app.patch("/payments/orderDelivered/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          orderStatus: "delivered",
+        },
+      };
+      const result = await paymentCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
 
+    app.get("/paymentsByEmail", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await paymentCollection.find(query).toArray();
+      res.send(result);
+    });
     // =================================================================
 
     // =============================Payment api====================================
