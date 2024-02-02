@@ -40,6 +40,9 @@ async function run() {
     const AllPlantsCollection = client.db("PlantDB").collection("AllPlants");
     const cartCollection = client.db("PlantDB").collection("carts");
     const paymentCollection = client.db("PlantDB").collection("payment");
+    const paymentHistoryCollection = client
+      .db("PlantDB")
+      .collection("paymentHistory");
     // =================================================================
 
     // ---------------------------JWT related API-------------------------------------
@@ -305,9 +308,9 @@ async function run() {
     app.post("/payments", async (req, res) => {
       const payment = req.body;
       const paymentResult = await paymentCollection.insertOne(payment);
+      const paymentHistory = await paymentHistoryCollection.insertOne(payment);
 
       // carefully delete each item
-
       const query = {
         _id: {
           $in: payment.cartIds.map((id) => new ObjectId(id)),
@@ -315,7 +318,7 @@ async function run() {
       };
       const deleteResult = await cartCollection.deleteMany(query);
 
-      res.send({ paymentResult, deleteResult });
+      res.send({ paymentResult, deleteResult, paymentHistory });
     });
 
     app.get("/payments", async (req, res) => {
