@@ -338,6 +338,14 @@ async function run() {
       const result = await paymentCollection.deleteOne(query);
       res.send(result);
     });
+
+    app.get("/paymentHistoryByEmail", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await paymentHistoryCollection.find(query).toArray();
+      res.send(result);
+    });
+
     // -----------------------------------------------------------------
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
