@@ -353,6 +353,13 @@ async function run() {
       res.send(result);
     });
     // -----------------------------------------------------------------
+    // ========================DASH-BOARD CALCULATION APIS=========================================
+    app.get("/revenueCalculation", async (req, res) => {
+      const result = await paymentHistoryCollection.find().toArray();
+      res.send(result);
+    });
+
+    // =================================================================
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
