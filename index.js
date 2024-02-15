@@ -40,9 +40,11 @@ async function run() {
     const AllPlantsCollection = client.db("PlantDB").collection("AllPlants");
     const cartCollection = client.db("PlantDB").collection("carts");
     const paymentCollection = client.db("PlantDB").collection("payment");
+    const shippedCollection = client.db("PlantDB").collection("shipped");
     const paymentHistoryCollection = client
       .db("PlantDB")
       .collection("paymentHistory");
+
     // =================================================================
 
     // ---------------------------JWT related API-------------------------------------
@@ -350,6 +352,25 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await paymentHistoryCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.post("/shippingConfirmed", async (req, res) => {
+      const shipped = req.body;
+      const shippingResult = await shippedCollection.insertOne(shipped);
+      res.send({ shippingResult });
+    });
+
+    app.get("/shippingConfirmByEmail", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await shippedCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.delete("/deleteShippedHistory/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await shippedCollection.deleteOne(query);
       res.send(result);
     });
     // -----------------------------------------------------------------
