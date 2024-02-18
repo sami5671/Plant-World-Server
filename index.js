@@ -41,9 +41,9 @@ const client = new MongoClient(uri, {
   },
 });
 // ===================SSL Commerce==============================================
-const store_id = process.env.STORE_ID;
-const store_passwd = process.env.STORE_PASSWORD;
-const is_live = false; //true for live, false for sandbox
+// const store_id = process.env.STORE_ID;
+// const store_passwd = process.env.STORE_PASSWORD;
+// const is_live = false; //true for live, false for sandbox
 
 // =================================================================
 async function run() {
@@ -413,6 +413,27 @@ run().catch(console.dir);
 app.get("/", (req, res) => {
   res.send("Plant server is running");
 });
+
+// --------------------FOR socket.io connection--------------------------------------------
+
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.id}`);
+
+  socket.on("join_room", (data) => {
+    socket.join(data);
+    console.log(`User with ID: ${socket.id} joined room: ${data}`);
+  });
+
+  socket.on("send_message", (data) => {
+    socket.to(data.room).emit("receive_message", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected", socket.id);
+  });
+});
+
+// ----------------------------------------------------------------
 
 app.listen(port, () => {
   console.log(`Plant World server is sitting on port ${port}`);
