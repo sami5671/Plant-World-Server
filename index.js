@@ -1,6 +1,10 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+// --------------------FOR Socket.io--------------------------------------------
+const http = require("http");
+const { Server } = require("socket.io");
+// ----------------------------------------------------------------
 var jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -13,6 +17,18 @@ app.use(express.json());
 // Plant - World;
 // y8w9wjk07j8XUdTl;
 // =================================================================
+
+// ------------------------FOR Socket.io----------------------------------------
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
+});
+
+// ----------------------------------------------------------------
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.fmvmv30.mongodb.net/?retryWrites=true&w=majority`;
 
