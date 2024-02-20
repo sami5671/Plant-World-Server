@@ -11,24 +11,11 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
 
-// middleware
+//----------------------- Middleware ------------------------
 app.use(cors());
 app.use(express.json());
-// Plant - World;
-// y8w9wjk07j8XUdTl;
+
 // =================================================================
-
-// ------------------------FOR Socket.io----------------------------------------
-const server = http.createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
-  },
-});
-
-// ----------------------------------------------------------------
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.fmvmv30.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -73,7 +60,7 @@ async function run() {
     });
     // MIDDLEWARE
     const verifyToken = (req, res, next) => {
-      console.log("inside the verifyToken", req.headers.authorization);
+      // console.log("inside the verifyToken", req.headers.authorization);
       if (!req.headers.authorization) {
         return res.status(401).send({ message: "Unauthorized Access" });
       }
@@ -397,6 +384,7 @@ async function run() {
     });
 
     // =================================================================
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
@@ -409,12 +397,18 @@ async function run() {
 }
 run().catch(console.dir);
 
-// =================================================================
-app.get("/", (req, res) => {
-  res.send("Plant server is running");
-});
+// ------------------------FOR Socket.io----------------------------------------
+const server = http.createServer(app);
 
-// --------------------FOR socket.io connection--------------------------------------------
+const io = new Server(server, {
+  cors: {
+    origin: "https://planet-world-fc802.web.app",
+    methods: ["GET", "POST"],
+  },
+});
+// ----------------------------------------------------------------
+
+// -------------------- FOR socket.io connection --------------------------------------------
 
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
@@ -432,9 +426,15 @@ io.on("connection", (socket) => {
     console.log("User disconnected", socket.id);
   });
 });
-
+// server.listen(5000, () => {
+//   console.log("Web socket Server Running");
+// });
 // ----------------------------------------------------------------
+// =================================================================
+app.get("/", (req, res) => {
+  res.send("Plant server is running");
+});
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Plant World server is sitting on port ${port}`);
 });
