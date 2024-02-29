@@ -158,7 +158,7 @@ async function run() {
       const result = await AllPlantsCollection.insertOne(treeItem);
       res.send(result);
     });
-    app.get("/product/:id", async (req, res) => {
+    app.get("/product/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await AllPlantsCollection.findOne(query);
@@ -228,7 +228,7 @@ async function run() {
       const result = await cartCollection.insertOne(cartItem);
       res.send(result);
     });
-    app.get("/carts", async (req, res) => {
+    app.get("/carts", verifyToken, async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
       const result = await cartCollection.find(query).toArray();
@@ -286,7 +286,7 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/paymentsByEmail", async (req, res) => {
+    app.get("/paymentsByEmail", verifyToken, async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
       const result = await paymentCollection.find(query).toArray();
@@ -326,11 +326,11 @@ async function run() {
       res.send({ paymentResult, deleteResult, paymentHistory });
     });
 
-    app.get("/payments", async (req, res) => {
+    app.get("/payments", verifyToken, verifyAdmin, async (req, res) => {
       const result = await paymentCollection.find().toArray();
       res.send(result);
     });
-    app.get("/payments/:id", async (req, res) => {
+    app.get("/payments/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await paymentCollection.findOne(query);
@@ -344,7 +344,7 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/paymentHistoryByEmail", async (req, res) => {
+    app.get("/paymentHistoryByEmail", verifyToken, async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
       const result = await paymentHistoryCollection.find(query).toArray();
@@ -378,10 +378,15 @@ async function run() {
     });
     // -----------------------------------------------------------------
     // ========================DASH-BOARD CALCULATION APIS=========================================
-    app.get("/revenueCalculation", async (req, res) => {
-      const result = await paymentHistoryCollection.find().toArray();
-      res.send(result);
-    });
+    app.get(
+      "/revenueCalculation",
+      verifyToken,
+      verifyAdmin,
+      async (req, res) => {
+        const result = await paymentHistoryCollection.find().toArray();
+        res.send(result);
+      }
+    );
 
     // =================================================================
 
