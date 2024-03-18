@@ -3,7 +3,7 @@ const app = express();
 const cors = require("cors");
 // --------------------FOR Socket.io--------------------------------------------
 const http = require("http");
-const { Server } = require("socket.io");
+// const { Server } = require("socket.io");
 // ----------------------------------------------------------------
 var jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -158,7 +158,8 @@ async function run() {
       const result = await AllPlantsCollection.insertOne(treeItem);
       res.send(result);
     });
-    app.get("/product/:id", verifyToken, async (req, res) => {
+
+    app.get("/product/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await AllPlantsCollection.findOne(query);
@@ -228,7 +229,7 @@ async function run() {
       const result = await cartCollection.insertOne(cartItem);
       res.send(result);
     });
-    app.get("/carts", verifyToken, async (req, res) => {
+    app.get("/carts", async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
       const result = await cartCollection.find(query).toArray();
@@ -326,11 +327,12 @@ async function run() {
       res.send({ paymentResult, deleteResult, paymentHistory });
     });
 
-    app.get("/payments", verifyToken, verifyAdmin, async (req, res) => {
+    app.get("/payments", verifyToken, async (req, res) => {
       const result = await paymentCollection.find().toArray();
       res.send(result);
     });
-    app.get("/payments/:id", verifyToken, async (req, res) => {
+
+    app.get("/payments/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await paymentCollection.findOne(query);
@@ -403,34 +405,34 @@ async function run() {
 run().catch(console.dir);
 
 // ------------------------FOR Socket.io----------------------------------------
-const server = http.createServer(app);
+// const server = http.createServer(app);
 
-const io = new Server(server, {
-  cors: {
-    origin: "https://planet-world-fc802.web.app",
-    methods: ["GET", "POST"],
-  },
-});
+// const io = new Server(server, {
+//   cors: {
+//     origin: "https://planet-world-fc802.web.app",
+//     methods: ["GET", "POST"],
+//   },
+// });
 // ----------------------------------------------------------------
 
 // -------------------- FOR socket.io connection --------------------------------------------
 
-io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.id}`);
+// io.on("connection", (socket) => {
+//   console.log(`User Connected: ${socket.id}`);
 
-  socket.on("join_room", (data) => {
-    socket.join(data);
-    console.log(`User with ID: ${socket.id} joined room: ${data}`);
-  });
+//   socket.on("join_room", (data) => {
+//     socket.join(data);
+//     console.log(`User with ID: ${socket.id} joined room: ${data}`);
+//   });
 
-  socket.on("send_message", (data) => {
-    socket.to(data.room).emit("receive_message", data);
-  });
+//   socket.on("send_message", (data) => {
+//     socket.to(data.room).emit("receive_message", data);
+//   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected", socket.id);
-  });
-});
+//   socket.on("disconnect", () => {
+//     console.log("User disconnected", socket.id);
+//   });
+// });
 // server.listen(5000, () => {
 //   console.log("Web socket Server Running");
 // });
@@ -440,6 +442,6 @@ app.get("/", (req, res) => {
   res.send("Plant server is running");
 });
 
-server.listen(port, () => {
+app.listen(port, () => {
   console.log(`Plant World server is sitting on port ${port}`);
 });
