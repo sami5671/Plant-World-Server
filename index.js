@@ -151,6 +151,7 @@ async function run() {
     // =======================Plants Related Api==========================================
     app.get("/AllPlants", async (req, res) => {
       const result = await AllPlantsCollection.find().toArray();
+      console.log(result);
       res.send(result);
     });
     app.post("/addProduct", async (req, res) => {
