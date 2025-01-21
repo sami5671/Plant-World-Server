@@ -1,0 +1,33 @@
+----------- Authentication Schema model -------------
+- name 
+- email 
+- mobile
+- password
+- avatar
+- role
+- timestamps
+
+
+
+----------- Plant Schema model -------------
+- name
+- previousPrice 
+- newPrice 
+- stock
+- color
+- plantType
+- material
+- category
+- description
+- images  {
+        publicId: {
+          type: String,
+          required: true,
+        },
+        url: {
+          type: String,
+          required: true,
+        },
+},
+
+
